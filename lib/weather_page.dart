@@ -8,6 +8,32 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:weatherly/cities.dart';
 
+class MyWeather {
+  String date = '';
+  String day = '';
+  String icon = '';
+  String description = '';
+  String status = '';
+  String degree = '';
+  String min = '';
+  String max = '';
+  String night = '';
+  String humidity = '';
+
+  MyWeather({
+    required this.date,
+    required this.day,
+    required this.icon,
+    required this.description,
+    required this.status,
+    required this.degree,
+    required this.min,
+    required this.max,
+    required this.night,
+    required this.humidity,
+  });
+}
+
 class WeatherPage extends StatefulWidget {
   const WeatherPage({super.key});
 
@@ -19,7 +45,19 @@ class _WeatherPageState extends State<WeatherPage> {
   String? _currentLocation = 'Deneme...';
   int _currentDegree = 0;
   LatLng _currentLatLng = const LatLng(0, 0);
-  String? _apiResponse = 'asd';
+  String? _apiResponse = 'empty response';
+  MyWeather myWeather = MyWeather(
+    date: '',
+    day: '',
+    icon: '',
+    description: '',
+    status: '',
+    degree: '',
+    min: '',
+    max: '',
+    night: '',
+    humidity: '',
+  );
 
   final List<String> _cities = getCities();
 
@@ -30,14 +68,25 @@ class _WeatherPageState extends State<WeatherPage> {
   }
 
   Future<void> _initializeLocation() async {
+    print('CALISTIIIIIIIIIIIIIIIIIIIIIIIII');
     await _getCurrentLocation();
     fetchWeather();
+  }
+
+  String? kapitalize(String? str) {
+    if (str == null) {
+      return null;
+    }
+
+    return str[0].toUpperCase() + str.substring(1);
   }
 
   Future<void> _getLongLat(String? location) async {
     if (location == null) {
       return;
     }
+
+    location = kapitalize(location);
 
     final Map<String, LatLng> coordinates = getCoordinates();
     _currentLatLng = coordinates[location] ?? const LatLng(31, 31);
@@ -79,19 +128,33 @@ class _WeatherPageState extends State<WeatherPage> {
   Future<void> _getCurrentDegree() async {
     try {
       // Parse JSON response
-      final jsonResponse = json.decode(_apiResponse!);
-      final List<dynamic> results = jsonResponse['result'];
+      // final jsonResponse = json.decode(_apiResponse!);
+      // final List<dynamic> results = jsonResponse['result'];
+
+      // Parse the JSON string
+      Map<String, dynamic> jsonMap = json.decode(_apiResponse!);
+
+      // Extract the first element from the result array
+      Map<String, dynamic> firstResult = jsonMap['result'][0];
+
+      // Store the properties in separate variables
+      myWeather.date = firstResult['date'];
+      myWeather.day = firstResult['day'];
+      myWeather.icon = firstResult['icon'];
+      myWeather.description = firstResult['description'];
+      myWeather.status = firstResult['status'];
+      myWeather.degree = firstResult['degree'];
+      myWeather.min = firstResult['min'];
+      myWeather.max = firstResult['max'];
+      myWeather.night = firstResult['night'];
+      myWeather.humidity = firstResult['humidity'];
 
       // Extract degree from the first element
-      final firstDegree = results.isNotEmpty ? results[0]['degree'] : null;
+      // final firstDegree = results.isNotEmpty ? results[0]['degree'] : null;
 
-      if (firstDegree != null) {
-        setState(() {
-          _currentDegree = double.parse(firstDegree).toInt();
-        });
-      } else {
-        throw Exception('No degree value found');
-      }
+      setState(() {
+        _currentDegree = double.parse(myWeather.degree).toInt();
+      });
     } catch (e) {
       print('Error: $e');
       setState(() {
@@ -116,23 +179,32 @@ class _WeatherPageState extends State<WeatherPage> {
       List<Placemark> placemarks =
           await placemarkFromCoordinates(position.latitude, position.longitude);
 
-      String? locality;
-      for (Placemark placemark in placemarks) {
-        String city = placemark.locality ?? '';
-        String city2 = placemark.administrativeArea ?? '';
-        if (_cities.contains(city)) {
-          locality = city;
-          break;
-        }
-        if (_cities.contains(city2)) {
-          locality = city2;
+      String? location;
+
+      String placemarksStr = placemarks.toString();
+      List<String> words = placemarksStr.split(' ');
+
+      for (int i = 0; i < words.length; i++) {
+        words[i] = words[i].toLowerCase().replaceAll(',', '');
+      }
+
+      print(words);
+
+      for (String word in words) {
+        String lowercaseWord = word.toLowerCase();
+
+        if (_cities.contains(lowercaseWord)) {
+          location =
+              _cities.firstWhere((city) => city.toLowerCase() == lowercaseWord);
           break;
         }
       }
 
-      if (locality != null && locality.isNotEmpty) {
+      print('location: $location');
+
+      if (location != null && location.isNotEmpty) {
         setState(() {
-          _currentLocation = locality;
+          _currentLocation = location;
         });
       } else {
         setState(() {
@@ -152,36 +224,38 @@ class _WeatherPageState extends State<WeatherPage> {
     return Scaffold(
       backgroundColor: Colors.blue,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 60, 16, 16),
-          child: Column(
-            children: [
-              Text(
-                _currentLocation!,
-                style: GoogleFonts.roboto(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+        child: RefreshIndicator(
+          onRefresh: () => _initializeLocation(),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 60, 16, 16),
+            child: Column(
+              children: [
+                Text(
+                  (_currentLocation)!,
+                  style: GoogleFonts.habibi(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              Image.network(
-                  'https://static.vecteezy.com/system/resources/previews/020/716/723/original/3d-minimal-weather-forecast-concept-partly-cloudy-in-the-morning-weather-icon-3d-illustration-png.png'),
-              Text(
-                '$_currentDegree°',
-                style: GoogleFonts.lato(
-                  fontSize: 60,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                Image.network('${myWeather.icon}'),
+                Text(
+                  '$_currentDegree°',
+                  style: GoogleFonts.lato(
+                    fontSize: 60,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              const Row(
-                children: [],
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text('Change Theme'),
-              ),
-            ],
+                const Row(
+                  children: [],
+                ),
+                ElevatedButton(
+                  onPressed: () {},
+                  child: const Text('Change Theme'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
