@@ -14,7 +14,7 @@ class WeatherPage extends StatefulWidget {
 }
 
 class _WeatherPageState extends State<WeatherPage> {
-  String? _currentLocation = 'Loading...';
+  String? _currentLocation = 'Deneme...';
   int _currentDegree = 0;
   LatLng _longLat = LatLng(0, 0);
 
