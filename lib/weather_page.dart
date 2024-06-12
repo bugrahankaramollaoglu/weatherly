@@ -224,38 +224,51 @@ class _WeatherPageState extends State<WeatherPage> {
     return Scaffold(
       backgroundColor: Colors.blue,
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () => _initializeLocation(),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 60, 16, 16),
-            child: Column(
-              children: [
-                Text(
-                  (_currentLocation)!,
-                  style: GoogleFonts.habibi(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 60, 16, 16),
+          child: Column(
+            children: [
+              Text(
+                (_currentLocation)!,
+                style: GoogleFonts.habibi(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-                Image.network('${myWeather.icon}'),
-                Text(
-                  '$_currentDegree°',
-                  style: GoogleFonts.lato(
-                    fontSize: 60,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+              ),
+              SizedBox(height: 20), // Add some spacing between widgets
+              Expanded(
+                child: Column(
+                  // mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 200, // Adjust the width as needed
+                      height: 200, // Adjust the height as needed
+                      child: Image.network('${myWeather.icon}'),
+                    ),
+                    Text(
+                      '$_currentDegree°',
+                      style: GoogleFonts.lato(
+                        fontSize: 60,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 20), // Add some spacing between widgets
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Add widgets for additional information
+                      ],
+                    ),
+                    ElevatedButton(
+                      onPressed: () {},
+                      child: const Text('Change Theme'),
+                    ),
+                  ],
                 ),
-                const Row(
-                  children: [],
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('Change Theme'),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
