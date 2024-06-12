@@ -6,9 +6,14 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:weatherly/cities.dart';
+import 'package:weatherly/weather_page.dart';
 
-class MyWeather {
+import 'weather_page.dart';
+
+class CurrentWeather {
   String date = '';
   String day = '';
   String icon = '';
@@ -20,7 +25,7 @@ class MyWeather {
   String night = '';
   String humidity = '';
 
-  MyWeather({
+  CurrentWeather({
     required this.date,
     required this.day,
     required this.icon,
@@ -34,6 +39,18 @@ class MyWeather {
   });
 }
 
+class NextDayWeather {
+  String day;
+  String icon;
+  String degree;
+
+  NextDayWeather({
+    required this.day,
+    required this.icon,
+    required this.degree,
+  });
+}
+
 class WeatherPage extends StatefulWidget {
   const WeatherPage({super.key});
 
@@ -44,9 +61,13 @@ class WeatherPage extends StatefulWidget {
 class _WeatherPageState extends State<WeatherPage> {
   String? _currentLocation = 'Deneme...';
   int _currentDegree = 0;
+  String selectedCity = '';
+  bool _isDropdownOpen = false;
+
   LatLng _currentLatLng = const LatLng(0, 0);
   String? _apiResponse = 'empty response';
-  MyWeather myWeather = MyWeather(
+
+  CurrentWeather currentWeather = CurrentWeather(
     date: '',
     day: '',
     icon: '',
@@ -64,11 +85,11 @@ class _WeatherPageState extends State<WeatherPage> {
   @override
   void initState() {
     super.initState();
+    initializeDateFormatting('tr', null);
     _initializeLocation();
   }
 
   Future<void> _initializeLocation() async {
-    print('CALISTIIIIIIIIIIIIIIIIIIIIIIIII');
     await _getCurrentLocation();
     fetchWeather();
   }
@@ -128,39 +149,46 @@ class _WeatherPageState extends State<WeatherPage> {
   Future<void> _getCurrentDegree() async {
     try {
       // Parse JSON response
-      // final jsonResponse = json.decode(_apiResponse!);
-      // final List<dynamic> results = jsonResponse['result'];
-
-      // Parse the JSON string
       Map<String, dynamic> jsonMap = json.decode(_apiResponse!);
 
-      // Extract the first element from the result array
-      Map<String, dynamic> firstResult = jsonMap['result'][0];
+      // Ensure 'result' key exists and contains at least one element
+      if (jsonMap.containsKey('result') && jsonMap['result'].isNotEmpty) {
+        Map<String, dynamic> firstResult = jsonMap['result'][0];
 
-      // Store the properties in separate variables
-      myWeather.date = firstResult['date'];
-      myWeather.day = firstResult['day'];
-      myWeather.icon = firstResult['icon'];
-      myWeather.description = firstResult['description'];
-      myWeather.status = firstResult['status'];
-      myWeather.degree = firstResult['degree'];
-      myWeather.min = firstResult['min'];
-      myWeather.max = firstResult['max'];
-      myWeather.night = firstResult['night'];
-      myWeather.humidity = firstResult['humidity'];
+        setState(() {
+          currentWeather.date = firstResult['date'] ?? '';
+          currentWeather.day = firstResult['day'] ?? '';
+          currentWeather.icon = firstResult['icon'] ?? '';
+          currentWeather.description = firstResult['description'] ?? '';
+          currentWeather.status = firstResult['status'] ?? '';
+          currentWeather.degree = firstResult['degree'] ?? '0';
+          currentWeather.min = firstResult['min'] ?? '';
+          currentWeather.max = firstResult['max'] ?? '';
+          currentWeather.night = firstResult['night'] ?? '0';
+          currentWeather.humidity = firstResult['humidity'] ?? '';
 
-      // Extract degree from the first element
-      // final firstDegree = results.isNotEmpty ? results[0]['degree'] : null;
-
-      setState(() {
-        _currentDegree = double.parse(myWeather.degree).toInt();
-      });
+          _currentDegree = double.parse(currentWeather.degree).toInt();
+          currentWeather.date = formatDate(currentWeather.date);
+        });
+      } else {
+        throw Exception('Invalid response structure');
+      }
     } catch (e) {
       print('Error: $e');
       setState(() {
         _currentDegree = 0;
       });
     }
+  }
+
+  String formatDate(String dateString) {
+    // Parse the date string into a DateTime object
+    DateTime date = DateFormat('dd.MM.yyyy').parse(dateString);
+
+    // Format the DateTime object into "dd MonthName" format
+    String formattedDate = DateFormat('dd MMMM', 'tr').format(date);
+
+    return formattedDate;
   }
 
   Future<void> _getCurrentLocation() async {
@@ -188,8 +216,6 @@ class _WeatherPageState extends State<WeatherPage> {
         words[i] = words[i].toLowerCase().replaceAll(',', '');
       }
 
-      print(words);
-
       for (String word in words) {
         String lowercaseWord = word.toLowerCase();
 
@@ -199,8 +225,6 @@ class _WeatherPageState extends State<WeatherPage> {
           break;
         }
       }
-
-      print('location: $location');
 
       if (location != null && location.isNotEmpty) {
         setState(() {
@@ -228,45 +252,148 @@ class _WeatherPageState extends State<WeatherPage> {
           padding: const EdgeInsets.fromLTRB(16, 60, 16, 16),
           child: Column(
             children: [
-              Text(
-                (_currentLocation)!,
-                style: GoogleFonts.habibi(
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    (_currentLocation)!,
+                    style: GoogleFonts.habibi(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _isDropdownOpen = !_isDropdownOpen;
+                      });
+                    },
+                    iconSize: 35,
+                    icon: Icon(Icons.location_on_rounded),
+                    color: Colors.white,
+                  ),
+                ],
               ),
-              SizedBox(height: 20), // Add some spacing between widgets
-              Expanded(
-                child: Column(
-                  // mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${currentWeather.date} ',
+                    style: GoogleFonts.notoSans(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    '${currentWeather.day}',
+                    style: GoogleFonts.notoSans(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 30), // Add some spacing between widgets
+              Container(
+                width: 150, // Adjust the width as needed
+                height: 150, // Adjust the height as needed
+                child: Image.network('${currentWeather.icon}'),
+              ),
+              SizedBox(height: 30), // Add some spacing between widgets
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '$_currentDegree°',
+                    style: GoogleFonts.lato(
+                      fontSize: 60,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const Text(
+                    '/',
+                    style: TextStyle(
+                      fontSize: 65,
+                      fontWeight: FontWeight.w300,
+                      color: Colors.white54,
+                    ),
+                  ),
+                  Text(
+                    currentWeather.night.length >= 2
+                        ? '${currentWeather.night.substring(0, 2)}°'
+                        : '',
+                    style: GoogleFonts.lato(
+                      fontSize: 50,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white54,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20), // Add some spacing between widgets
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(children: [
+                    Text('MON'),
                     Container(
-                      width: 200, // Adjust the width as needed
-                      height: 200, // Adjust the height as needed
-                      child: Image.network('${myWeather.icon}'),
+                      width: 50, // Adjust the width as needed
+                      height: 50, // Adjust the height as needed
+                      child: Image.network('${currentWeather.icon}'),
                     ),
-                    Text(
-                      '$_currentDegree°',
-                      style: GoogleFonts.lato(
-                        fontSize: 60,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    Text('40'),
+                  ]),
+                  Column(children: [
+                    Text('MON'),
+                    Container(
+                      width: 50, // Adjust the width as needed
+                      height: 50, // Adjust the height as needed
+                      child: Image.network('${currentWeather.icon}'),
                     ),
-                    SizedBox(height: 20), // Add some spacing between widgets
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Add widgets for additional information
-                      ],
+                    Text('40'),
+                  ]),
+                  Column(children: [
+                    Text('MON'),
+                    Container(
+                      width: 50, // Adjust the width as needed
+                      height: 50, // Adjust the height as needed
+                      child: Image.network('${currentWeather.icon}'),
                     ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: const Text('Change Theme'),
+                    Text('40'),
+                  ]),
+                  Column(children: [
+                    Text('MON'),
+                    Container(
+                      width: 50, // Adjust the width as needed
+                      height: 50, // Adjust the height as needed
+                      child: Image.network('${currentWeather.icon}'),
                     ),
-                  ],
-                ),
+                    Text('40'),
+                  ]),
+                  Column(children: [
+                    Text('MON'),
+                    Container(
+                      width: 50, // Adjust the width as needed
+                      height: 50, // Adjust the height as needed
+                      child: Image.network('${currentWeather.icon}'),
+                    ),
+                    Text('40'),
+                  ]),
+                ],
+              ),
+              Row(
+                children: [],
+              ),
+              SizedBox(
+                height: 200,
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  print('iste: ${currentWeather.date}');
+                },
+                child: const Text('Change Theme'),
               ),
             ],
           ),
