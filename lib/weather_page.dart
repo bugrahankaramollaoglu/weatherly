@@ -1,10 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:weatherly/cities.dart';
-import 'package:weatherly/longlat.dart';
 
 class WeatherPage extends StatefulWidget {
   const WeatherPage({super.key});
@@ -16,21 +18,87 @@ class WeatherPage extends StatefulWidget {
 class _WeatherPageState extends State<WeatherPage> {
   String? _currentLocation = 'Deneme...';
   int _currentDegree = 0;
-  LatLng _longLat = LatLng(0, 0);
+  LatLng _currentLatLng = const LatLng(0, 0);
+  String? _apiResponse = 'asd';
 
   final List<String> _cities = getCities();
 
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
-    _getLongLat(_currentLocation);
-    _getCurrentDegree();
+    _initializeLocation();
   }
 
-  Future<void> _getLongLat(String? location) async {}
+  Future<void> _initializeLocation() async {
+    await _getCurrentLocation();
+    fetchWeather();
+  }
 
-  Future<void> _getCurrentDegree() async {}
+  Future<void> _getLongLat(String? location) async {
+    if (location == null) {
+      return;
+    }
+
+    final Map<String, LatLng> coordinates = getCoordinates();
+    _currentLatLng = coordinates[location] ?? const LatLng(31, 31);
+  }
+
+  Future<void> fetchWeather() async {
+/* curl --request GET  --url 'https://api.collectapi.com/weather/getWeather?data.lang=tr&data.city=artvin'
+--header 'authorization: apikey 7vKjwRWY743SxEXH2pg9g2:5xQeRee2G7KQhuO9bIZHU8' */
+
+    String locationn = _currentLocation!.toLowerCase();
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+          'https://api.collectapi.com/weather/getWeather?data.lang=tr&data.city=$locationn',
+        ),
+        headers: {
+          'authorization':
+              'apikey 7vKjwRWY743SxEXH2pg9g2:5xQeRee2G7KQhuO9bIZHU8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _apiResponse = response.body;
+          _getCurrentDegree();
+        });
+      } else {
+        throw Exception('Failed to load weather data: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        _apiResponse = 'Error: $e';
+      });
+    }
+  }
+
+  Future<void> _getCurrentDegree() async {
+    try {
+      // Parse JSON response
+      final jsonResponse = json.decode(_apiResponse!);
+      final List<dynamic> results = jsonResponse['result'];
+
+      // Extract degree from the first element
+      final firstDegree = results.isNotEmpty ? results[0]['degree'] : null;
+
+      if (firstDegree != null) {
+        setState(() {
+          _currentDegree = double.parse(firstDegree).toInt();
+        });
+      } else {
+        throw Exception('No degree value found');
+      }
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        _currentDegree = 0;
+      });
+    }
+  }
 
   Future<void> _getCurrentLocation() async {
     try {
@@ -76,6 +144,7 @@ class _WeatherPageState extends State<WeatherPage> {
         _currentLocation = 'Error getting location';
       });
     }
+    _getLongLat(_currentLocation);
   }
 
   @override
@@ -105,14 +174,12 @@ class _WeatherPageState extends State<WeatherPage> {
                   color: Colors.white,
                 ),
               ),
-              Row(
+              const Row(
                 children: [],
               ),
               ElevatedButton(
-                onPressed: () {
-                  print(_currentLocation);
-                },
-                child: Text('Change Theme'),
+                onPressed: () {},
+                child: const Text('Change Theme'),
               ),
             ],
           ),
