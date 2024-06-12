@@ -64,6 +64,12 @@ class _WeatherPageState extends State<WeatherPage> {
   String selectedCity = '';
   bool _isDropdownOpen = false;
 
+  NextDayWeather day1 = NextDayWeather(day: '', icon: '', degree: '');
+  NextDayWeather day2 = NextDayWeather(day: '', icon: '', degree: '');
+  NextDayWeather day3 = NextDayWeather(day: '', icon: '', degree: '');
+  NextDayWeather day4 = NextDayWeather(day: '', icon: '', degree: '');
+  NextDayWeather day5 = NextDayWeather(day: '', icon: '', degree: '');
+
   LatLng _currentLatLng = const LatLng(0, 0);
   String? _apiResponse = 'empty response';
 
@@ -87,6 +93,7 @@ class _WeatherPageState extends State<WeatherPage> {
     super.initState();
     initializeDateFormatting('tr', null);
     _initializeLocation();
+    _getNextDays();
   }
 
   Future<void> _initializeLocation() async {
@@ -146,10 +153,41 @@ class _WeatherPageState extends State<WeatherPage> {
     }
   }
 
+  Future<void> _getNextDays() async {
+    try {
+      setState(() {
+        // day1.day = _apiResponse[1][];
+      });
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   Future<void> _getCurrentDegree() async {
     try {
       // Parse JSON response
       Map<String, dynamic> jsonMap = json.decode(_apiResponse!);
+
+      List<dynamic> resultList = jsonMap['result'];
+      day1.day = resultList[1]['day'];
+      day1.icon = resultList[1]['icon'];
+      day1.degree = resultList[1]['degree'];
+
+      day2.day = resultList[2]['day'];
+      day2.icon = resultList[2]['icon'];
+      day2.degree = resultList[2]['degree'];
+
+      day3.day = resultList[3]['day'];
+      day3.icon = resultList[3]['icon'];
+      day3.degree = resultList[3]['degree'];
+
+      day4.day = resultList[4]['day'];
+      day4.icon = resultList[4]['icon'];
+      day4.degree = resultList[4]['degree'];
+
+      day5.day = resultList[5]['day'];
+      day5.icon = resultList[5]['icon'];
+      day5.degree = resultList[5]['degree'];
 
       // Ensure 'result' key exists and contains at least one element
       if (jsonMap.containsKey('result') && jsonMap['result'].isNotEmpty) {
@@ -332,54 +370,137 @@ class _WeatherPageState extends State<WeatherPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20), // Add some spacing between widgets
+              const SizedBox(height: 50), // Add some spacing between widgets
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Column(children: [
-                    Text('MON'),
+                    Text(
+                      '${day1.day.substring(0, 3)}',
+                      style: GoogleFonts.habibi(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 10),
                     Container(
                       width: 50, // Adjust the width as needed
                       height: 50, // Adjust the height as needed
-                      child: Image.network('${currentWeather.icon}'),
+                      child: Image.network('${day1.icon}'),
                     ),
-                    Text('40'),
+                    SizedBox(height: 10),
+                    Text(
+                      '${day1.degree.substring(0, 2)}°',
+                      style: GoogleFonts.habibi(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ]),
                   Column(children: [
-                    Text('MON'),
+                    Text(
+                      '${day2.day.substring(0, 3)}',
+                      style: GoogleFonts.habibi(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(
+                        height:
+                            10), // Add a space of 10 pixels between the children
+
                     Container(
                       width: 50, // Adjust the width as needed
                       height: 50, // Adjust the height as needed
-                      child: Image.network('${currentWeather.icon}'),
+                      child: Image.network('${day2.icon}'),
                     ),
-                    Text('40'),
+                    SizedBox(height: 10),
+                    Text(
+                      '${day2.degree.substring(0, 2)}°',
+                      style: GoogleFonts.habibi(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ]),
                   Column(children: [
-                    Text('MON'),
+                    Text(
+                      '${day3.day.substring(0, 3)}',
+                      style: GoogleFonts.habibi(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 10),
                     Container(
                       width: 50, // Adjust the width as needed
                       height: 50, // Adjust the height as needed
-                      child: Image.network('${currentWeather.icon}'),
+                      child: Image.network('${day3.icon}'),
                     ),
-                    Text('40'),
+                    SizedBox(height: 10),
+                    Text(
+                      '${day3.degree.substring(0, 2)}°',
+                      style: GoogleFonts.habibi(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ]),
                   Column(children: [
-                    Text('MON'),
+                    Text(
+                      '${day4.day.substring(0, 3)}',
+                      style: GoogleFonts.habibi(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 10),
                     Container(
                       width: 50, // Adjust the width as needed
                       height: 50, // Adjust the height as needed
-                      child: Image.network('${currentWeather.icon}'),
+                      child: Image.network('${day4.icon}'),
                     ),
-                    Text('40'),
+                    SizedBox(height: 10),
+                    Text(
+                      '${day4.degree.substring(0, 2)}°',
+                      style: GoogleFonts.habibi(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ]),
                   Column(children: [
-                    Text('MON'),
+                    Text(
+                      '${day5.day.substring(0, 3)}',
+                      style: GoogleFonts.habibi(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 10),
                     Container(
                       width: 50, // Adjust the width as needed
                       height: 50, // Adjust the height as needed
-                      child: Image.network('${currentWeather.icon}'),
+                      child: Image.network('${day5.icon}'),
                     ),
-                    Text('40'),
+                    SizedBox(height: 10),
+                    Text(
+                      '${day5.degree.substring(0, 2)}°',
+                      style: GoogleFonts.habibi(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ]),
                 ],
               ),
@@ -387,7 +508,7 @@ class _WeatherPageState extends State<WeatherPage> {
                 children: [],
               ),
               SizedBox(
-                height: 200,
+                height: 100,
               ),
               ElevatedButton(
                 onPressed: () {
