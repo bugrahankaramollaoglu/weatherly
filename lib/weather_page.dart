@@ -62,8 +62,6 @@ class _WeatherPageState extends State<WeatherPage> {
   String? _apiResponse = 'empty response';
   bool isDarkTheme = false;
 
-  String _selectedCity = '';
-
   CurrentWeather currentWeather = CurrentWeather(
     date: '',
     day: '',
@@ -87,7 +85,6 @@ class _WeatherPageState extends State<WeatherPage> {
             return CupertinoActionSheetAction(
               onPressed: () {
                 setState(() {
-                  _selectedCity = city;
                   _currentLocation = city;
                   _initializeLocation();
                 });
@@ -138,9 +135,7 @@ class _WeatherPageState extends State<WeatherPage> {
   }
 
   Future<void> fetchWeather() async {
-/* curl --request GET  --url 'https://api.collectapi.com/weather/getWeather?data.lang=tr&data.city=artvin'
---header 'authorization: apikey 7vKjwRWY743SxEXH2pg9g2:5xQeRee2G7KQhuO9bIZHU8' */
-
+    
     String locationn = _currentLocation!.toLowerCase();
 
     try {
