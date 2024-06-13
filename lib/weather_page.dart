@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -61,6 +60,7 @@ class _WeatherPageState extends State<WeatherPage> {
   NextDayWeather day4 = NextDayWeather(day: '', icon: '', degree: '');
   NextDayWeather day5 = NextDayWeather(day: '', icon: '', degree: '');
   String? _apiResponse = 'empty response';
+  bool isDarkTheme = false;
 
   String _selectedCity = '';
 
@@ -239,21 +239,21 @@ class _WeatherPageState extends State<WeatherPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Center(child: Text('Seçim yapınız...')),
+          title: const Center(child: Text('Seçim yapınız...')),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: Icon(Icons.location_on_rounded),
-                title: Text('Konuma Göre Seç'),
+                leading: const Icon(Icons.location_on_rounded),
+                title: const Text('Konuma Göre Seç'),
                 onTap: () {
                   Navigator.pop(context);
                   _showLocationPicker(context);
                 },
               ),
               ListTile(
-                leading: Icon(Icons.list_rounded),
-                title: Text('Listeden Seç'),
+                leading: const Icon(Icons.list_rounded),
+                title: const Text('Listeden Seç'),
                 onTap: () {
                   Navigator.pop(context);
                   _showCityListDialog(context);
@@ -268,7 +268,7 @@ class _WeatherPageState extends State<WeatherPage> {
 
   void _showLocationPicker(BuildContext context) {
     _initializeLocation();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Konumunuza göre ayarlandı.'),
     ));
   }
@@ -278,8 +278,8 @@ class _WeatherPageState extends State<WeatherPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Center(child: Text('Bir şehir seçiniz')),
-          content: Container(
+          title: const Center(child: Text('Bir şehir seçiniz')),
+          content: SizedBox(
             width: double.maxFinite,
             child: ListView.builder(
               shrinkWrap: true,
@@ -300,7 +300,7 @@ class _WeatherPageState extends State<WeatherPage> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('İptal'),
+              child: const Text('İptal'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -366,7 +366,8 @@ class _WeatherPageState extends State<WeatherPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
+      backgroundColor:
+          isDarkTheme ? const Color.fromARGB(255, 24, 24, 23) : Colors.blue,
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
         child: Column(
@@ -593,7 +594,9 @@ class _WeatherPageState extends State<WeatherPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Add your onPressed logic here
+                setState(() {
+                  isDarkTheme = !isDarkTheme;
+                });
               },
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
