@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -52,7 +53,7 @@ class WeatherPage extends StatefulWidget {
 }
 
 class _WeatherPageState extends State<WeatherPage> {
-  String? _currentLocation = 'Deneme...';
+  String? _currentLocation = '...';
   int _currentDegree = 0;
   NextDayWeather day1 = NextDayWeather(day: '', icon: '', degree: '');
   NextDayWeather day2 = NextDayWeather(day: '', icon: '', degree: '');
@@ -60,6 +61,8 @@ class _WeatherPageState extends State<WeatherPage> {
   NextDayWeather day4 = NextDayWeather(day: '', icon: '', degree: '');
   NextDayWeather day5 = NextDayWeather(day: '', icon: '', degree: '');
   String? _apiResponse = 'empty response';
+
+  String _selectedCity = '';
 
   CurrentWeather currentWeather = CurrentWeather(
     date: '',
@@ -74,12 +77,41 @@ class _WeatherPageState extends State<WeatherPage> {
 
   final List<String> _cities = getCities();
 
+  void _showCityPicker(BuildContext context) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoActionSheet(
+          title: const Text('Select a city'),
+          actions: _cities.map((String city) {
+            return CupertinoActionSheetAction(
+              onPressed: () {
+                setState(() {
+                  _selectedCity = city;
+                  _currentLocation = city;
+                  _initializeLocation();
+                });
+                Navigator.pop(context);
+              },
+              child: Text(city),
+            );
+          }).toList(),
+          cancelButton: CupertinoActionSheetAction(
+            child: const Text('Cancel'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     initializeDateFormatting('tr', null);
     _initializeLocation();
-    _getNextDays();
   }
 
   Future<void> _initializeLocation() async {
@@ -102,7 +134,7 @@ class _WeatherPageState extends State<WeatherPage> {
 
     location = kapitalize(location);
 
-    final Map<String, LatLng> coordinates = getCoordinates();
+    // final Map<String, LatLng> coordinates = getCoordinates();
   }
 
   Future<void> fetchWeather() async {
@@ -135,16 +167,6 @@ class _WeatherPageState extends State<WeatherPage> {
       setState(() {
         _apiResponse = 'Error: $e';
       });
-    }
-  }
-
-  Future<void> _getNextDays() async {
-    try {
-      setState(() {
-        // day1.day = _apiResponse[1][];
-      });
-    } catch (e) {
-      print('Error: $e');
     }
   }
 
@@ -212,13 +234,90 @@ class _WeatherPageState extends State<WeatherPage> {
     return formattedDate;
   }
 
+  void _showDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(child: Text('Seçim yapınız...')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.location_on_rounded),
+                title: Text('Konuma Göre Seç'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showLocationPicker(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.list_rounded),
+                title: Text('Listeden Seç'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showCityListDialog(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showLocationPicker(BuildContext context) {
+    _initializeLocation();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Konumunuza göre ayarlandı.'),
+    ));
+  }
+
+  void _showCityListDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Center(child: Text('Bir şehir seçiniz')),
+          content: Container(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: _cities.length,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title: Text(_cities[index]),
+                  onTap: () {
+                    setState(() {
+                      _currentLocation = _cities[index];
+                      fetchWeather();
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('İptal'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _getCurrentLocation() async {
     try {
       LocationPermission permission = await Geolocator.requestPermission();
 
       if (permission == LocationPermission.denied) {
         setState(() {
-          _currentLocation = 'Permission denied';
+          _currentLocation = 'İzin Verilmedi';
         });
         return;
       }
@@ -285,7 +384,12 @@ class _WeatherPageState extends State<WeatherPage> {
                 ),
                 IconButton(
                   onPressed: () {
-                    setState(() {});
+                    setState(() {
+                      _showDialog(context);
+                      // _showCityPicker(context);
+                      // _currentLocation = _selectedCity;
+                      // _initializeLocation();
+                    });
                   },
                   iconSize: 35,
                   icon: const Icon(Icons.location_on_rounded),
@@ -483,9 +587,6 @@ class _WeatherPageState extends State<WeatherPage> {
                   ),
                 ]),
               ],
-            ),
-            const Row(
-              children: [],
             ),
             const SizedBox(
               height: 50,
