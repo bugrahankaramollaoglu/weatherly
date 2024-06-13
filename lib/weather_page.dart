@@ -9,9 +9,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:weatherly/cities.dart';
-import 'package:weatherly/weather_page.dart';
-
-import 'weather_page.dart';
 
 class CurrentWeather {
   String date = '';
@@ -20,8 +17,6 @@ class CurrentWeather {
   String description = '';
   String status = '';
   String degree = '';
-  String min = '';
-  String max = '';
   String night = '';
   String humidity = '';
 
@@ -32,8 +27,6 @@ class CurrentWeather {
     required this.description,
     required this.status,
     required this.degree,
-    required this.min,
-    required this.max,
     required this.night,
     required this.humidity,
   });
@@ -61,16 +54,11 @@ class WeatherPage extends StatefulWidget {
 class _WeatherPageState extends State<WeatherPage> {
   String? _currentLocation = 'Deneme...';
   int _currentDegree = 0;
-  String selectedCity = '';
-  bool _isDropdownOpen = false;
-
   NextDayWeather day1 = NextDayWeather(day: '', icon: '', degree: '');
   NextDayWeather day2 = NextDayWeather(day: '', icon: '', degree: '');
   NextDayWeather day3 = NextDayWeather(day: '', icon: '', degree: '');
   NextDayWeather day4 = NextDayWeather(day: '', icon: '', degree: '');
   NextDayWeather day5 = NextDayWeather(day: '', icon: '', degree: '');
-
-  LatLng _currentLatLng = const LatLng(0, 0);
   String? _apiResponse = 'empty response';
 
   CurrentWeather currentWeather = CurrentWeather(
@@ -80,8 +68,6 @@ class _WeatherPageState extends State<WeatherPage> {
     description: '',
     status: '',
     degree: '',
-    min: '',
-    max: '',
     night: '',
     humidity: '',
   );
@@ -117,7 +103,6 @@ class _WeatherPageState extends State<WeatherPage> {
     location = kapitalize(location);
 
     final Map<String, LatLng> coordinates = getCoordinates();
-    _currentLatLng = coordinates[location] ?? const LatLng(31, 31);
   }
 
   Future<void> fetchWeather() async {
@@ -200,8 +185,6 @@ class _WeatherPageState extends State<WeatherPage> {
           currentWeather.description = firstResult['description'] ?? '';
           currentWeather.status = firstResult['status'] ?? '';
           currentWeather.degree = firstResult['degree'] ?? '0';
-          currentWeather.min = firstResult['min'] ?? '';
-          currentWeather.max = firstResult['max'] ?? '';
           currentWeather.night = firstResult['night'] ?? '0';
           currentWeather.humidity = firstResult['humidity'] ?? '';
 
@@ -285,239 +268,252 @@ class _WeatherPageState extends State<WeatherPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blue,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 60, 16, 16),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    (_currentLocation)!,
-                    style: GoogleFonts.habibi(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _isDropdownOpen = !_isDropdownOpen;
-                      });
-                    },
-                    iconSize: 35,
-                    icon: Icon(Icons.location_on_rounded),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  (_currentLocation)!,
+                  style: GoogleFonts.saira(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '${currentWeather.date} ',
-                    style: GoogleFonts.notoSans(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {});
+                  },
+                  iconSize: 35,
+                  icon: const Icon(Icons.location_on_rounded),
+                  color: Colors.white,
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '${currentWeather.date} ',
+                  style: GoogleFonts.notoSans(
+                    fontSize: 20,
+                    color: Colors.white,
                   ),
-                  Text(
-                    '${currentWeather.day}',
-                    style: GoogleFonts.notoSans(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ),
+                ),
+                Text(
+                  currentWeather.day,
+                  style: GoogleFonts.notoSans(
+                    fontSize: 20,
+                    color: Colors.white,
                   ),
-                ],
-              ),
-              SizedBox(height: 30), // Add some spacing between widgets
-              Container(
-                width: 150, // Adjust the width as needed
-                height: 150, // Adjust the height as needed
-                child: Image.network('${currentWeather.icon}'),
-              ),
-              SizedBox(height: 30), // Add some spacing between widgets
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                ),
+              ],
+            ),
+            const SizedBox(height: 30), // Add some spacing between widgets
+            SizedBox(
+              width: 150, // Adjust the width as needed
+              height: 150, // Adjust the height as needed
+              child: Image.network(currentWeather.icon),
+            ),
+            const SizedBox(height: 30), // Add some spacing between widgets
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '$_currentDegree°',
+                  style: GoogleFonts.lato(
+                    fontSize: 60,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const Text(
+                  '/',
+                  style: TextStyle(
+                    fontSize: 65,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.white54,
+                  ),
+                ),
+                Text(
+                  currentWeather.night.length >= 2
+                      ? '${currentWeather.night.substring(0, 2)}°'
+                      : '',
+                  style: GoogleFonts.lato(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white54,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 50), // Add some spacing between widgets
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(children: [
                   Text(
-                    '$_currentDegree°',
-                    style: GoogleFonts.lato(
-                      fontSize: 60,
+                    day1.day.substring(0, 3),
+                    style: GoogleFonts.saira(
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
-                  const Text(
-                    '/',
-                    style: TextStyle(
-                      fontSize: 65,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.white54,
-                    ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: 50, // Adjust the width as needed
+                    height: 50, // Adjust the height as needed
+                    child: Image.network(day1.icon),
                   ),
+                  const SizedBox(height: 10),
                   Text(
-                    currentWeather.night.length >= 2
-                        ? '${currentWeather.night.substring(0, 2)}°'
-                        : '',
-                    style: GoogleFonts.lato(
-                      fontSize: 50,
+                    '${day1.degree.substring(0, 2)}°',
+                    style: GoogleFonts.saira(
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white54,
+                      color: Colors.white,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 50), // Add some spacing between widgets
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(children: [
-                    Text(
-                      '${day1.day.substring(0, 3)}',
-                      style: GoogleFonts.habibi(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                ]),
+                Column(children: [
+                  Text(
+                    day2.day.substring(0, 3),
+                    style: GoogleFonts.saira(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    SizedBox(height: 10),
-                    Container(
-                      width: 50, // Adjust the width as needed
-                      height: 50, // Adjust the height as needed
-                      child: Image.network('${day1.icon}'),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      '${day1.degree.substring(0, 2)}°',
-                      style: GoogleFonts.habibi(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ]),
-                  Column(children: [
-                    Text(
-                      '${day2.day.substring(0, 3)}',
-                      style: GoogleFonts.habibi(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(
-                        height:
-                            10), // Add a space of 10 pixels between the children
+                  ),
+                  const SizedBox(
+                      height:
+                          10), // Add a space of 10 pixels between the children
 
-                    Container(
-                      width: 50, // Adjust the width as needed
-                      height: 50, // Adjust the height as needed
-                      child: Image.network('${day2.icon}'),
+                  SizedBox(
+                    width: 50, // Adjust the width as needed
+                    height: 50, // Adjust the height as needed
+                    child: Image.network(day2.icon),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '${day2.degree.substring(0, 2)}°',
+                    style: GoogleFonts.saira(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '${day2.degree.substring(0, 2)}°',
-                      style: GoogleFonts.habibi(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                  ),
+                ]),
+                Column(children: [
+                  Text(
+                    day3.day.substring(0, 3),
+                    style: GoogleFonts.saira(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                  ]),
-                  Column(children: [
-                    Text(
-                      '${day3.day.substring(0, 3)}',
-                      style: GoogleFonts.habibi(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: 50, // Adjust the width as needed
+                    height: 50, // Adjust the height as needed
+                    child: Image.network(day3.icon),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '${day3.degree.substring(0, 2)}°',
+                    style: GoogleFonts.saira(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    SizedBox(height: 10),
-                    Container(
-                      width: 50, // Adjust the width as needed
-                      height: 50, // Adjust the height as needed
-                      child: Image.network('${day3.icon}'),
+                  ),
+                ]),
+                Column(children: [
+                  Text(
+                    day4.day.substring(0, 3),
+                    style: GoogleFonts.saira(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '${day3.degree.substring(0, 2)}°',
-                      style: GoogleFonts.habibi(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: 50, // Adjust the width as needed
+                    height: 50, // Adjust the height as needed
+                    child: Image.network(day4.icon),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '${day4.degree.substring(0, 2)}°',
+                    style: GoogleFonts.saira(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                  ]),
-                  Column(children: [
-                    Text(
-                      '${day4.day.substring(0, 3)}',
-                      style: GoogleFonts.habibi(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                  ),
+                ]),
+                Column(children: [
+                  Text(
+                    day5.day.substring(0, 3),
+                    style: GoogleFonts.saira(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    SizedBox(height: 10),
-                    Container(
-                      width: 50, // Adjust the width as needed
-                      height: 50, // Adjust the height as needed
-                      child: Image.network('${day4.icon}'),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: 50, // Adjust the width as needed
+                    height: 50, // Adjust the height as needed
+                    child: Image.network(day5.icon),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '${day5.degree.substring(0, 2)}°',
+                    style: GoogleFonts.saira(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      '${day4.degree.substring(0, 2)}°',
-                      style: GoogleFonts.habibi(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ]),
-                  Column(children: [
-                    Text(
-                      '${day5.day.substring(0, 3)}',
-                      style: GoogleFonts.habibi(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      width: 50, // Adjust the width as needed
-                      height: 50, // Adjust the height as needed
-                      child: Image.network('${day5.icon}'),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      '${day5.degree.substring(0, 2)}°',
-                      style: GoogleFonts.habibi(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ]),
-                ],
+                  ),
+                ]),
+              ],
+            ),
+            const Row(
+              children: [],
+            ),
+            const SizedBox(
+              height: 50,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Add your onPressed logic here
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                      8), // Adjust the border radius as needed
+                ),
+                backgroundColor: Colors.white, // Change the background color
+                elevation: 15, // Adjust the elevation
+                padding: const EdgeInsets.symmetric(
+                    vertical: 16, horizontal: 24), // Adjust the padding
               ),
-              Row(
-                children: [],
+              child: const Text(
+                'Temayı Değiştir',
+                style: TextStyle(
+                  fontSize: 16, // Adjust the font size
+                  fontWeight: FontWeight.bold, // Adjust the font weight
+                  color: Colors.black, // Change the text color
+                ),
               ),
-              SizedBox(
-                height: 100,
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  print('iste: ${currentWeather.date}');
-                },
-                child: const Text('Change Theme'),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
