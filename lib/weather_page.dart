@@ -225,10 +225,8 @@ class _WeatherPageState extends State<WeatherPage> {
   }
 
   String formatDate(String dateString) {
-    // Parse the date string into a DateTime object
     DateTime date = DateFormat('dd.MM.yyyy').parse(dateString);
 
-    // Format the DateTime object into "dd MonthName" format
     String formattedDate = DateFormat('dd MMMM', 'tr').format(date);
 
     return formattedDate;
