@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:weatherly/capitalize.dart';
 import 'package:weatherly/cities.dart';
 
 class CurrentWeather {
@@ -135,7 +136,6 @@ class _WeatherPageState extends State<WeatherPage> {
   }
 
   Future<void> fetchWeather() async {
-    
     String locationn = _currentLocation!.toLowerCase();
 
     try {
@@ -279,7 +279,7 @@ class _WeatherPageState extends State<WeatherPage> {
               itemCount: _cities.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                  title: Text(_cities[index]),
+                  title: Text(_cities[index].capitalize()),
                   onTap: () {
                     setState(() {
                       _currentLocation = _cities[index];
@@ -359,8 +359,9 @@ class _WeatherPageState extends State<WeatherPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          isDarkTheme ? const Color.fromARGB(255, 24, 24, 23) : Colors.blue,
+      backgroundColor: isDarkTheme
+          ? const Color.fromARGB(255, 24, 24, 23)
+          : Colors.lightBlueAccent.withOpacity(0.6),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16, 80, 16, 16),
         child: Column(
