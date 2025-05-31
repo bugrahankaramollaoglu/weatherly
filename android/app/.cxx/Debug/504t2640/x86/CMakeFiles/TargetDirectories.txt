@@ -1,0 +1,2 @@
+/mnt/4000BAAF00BAAAF4/github/weatherly/android/app/.cxx/Debug/504t2640/x86/CMakeFiles/edit_cache.dir
+/mnt/4000BAAF00BAAAF4/github/weatherly/android/app/.cxx/Debug/504t2640/x86/CMakeFiles/rebuild_cache.dir

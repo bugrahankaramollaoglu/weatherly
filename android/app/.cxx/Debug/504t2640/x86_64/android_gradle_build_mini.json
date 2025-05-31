@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/home/bugra/snap/flutter/common/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/bugra/Android/Sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/mnt/4000BAAF00BAAAF4/github/weatherly/android/app/.cxx/Debug/504t2640/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/bugra/Android/Sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/mnt/4000BAAF00BAAAF4/github/weatherly/android/app/.cxx/Debug/504t2640/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

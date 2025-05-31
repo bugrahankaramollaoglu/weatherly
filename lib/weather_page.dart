@@ -117,12 +117,9 @@ class _WeatherPageState extends State<WeatherPage> {
     fetchWeather();
   }
 
-  String? kapitalize(String? str) {
-    if (str == null) {
-      return null;
-    }
-
-    return str[0].toUpperCase() + str.substring(1);
+  String? kapitalize(String? s) {
+    if (s == null || s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1);
   }
 
   Future<void> _getLongLat(String? location) async {
