@@ -135,6 +135,10 @@ class _WeatherPageState extends State<WeatherPage> {
   Future<void> fetchWeather() async {
     String locationn = _currentLocation!.toLowerCase();
 
+    locationn = 'samsun';
+
+    print('mesajjjj: $locationn');
+
     try {
       final response = await http.get(
         Uri.parse(
@@ -149,6 +153,7 @@ class _WeatherPageState extends State<WeatherPage> {
       if (response.statusCode == 200) {
         setState(() {
           _apiResponse = response.body;
+          print('mesaj: alinan api: $_apiResponse');
           _getCurrentDegree();
         });
       } else {
@@ -164,57 +169,65 @@ class _WeatherPageState extends State<WeatherPage> {
 
   Future<void> _getCurrentDegree() async {
     try {
-      // Parse JSON response
       Map<String, dynamic> jsonMap = json.decode(_apiResponse!);
 
-      List<dynamic> resultList = jsonMap['result'];
-      day1.day = resultList[1]['day'];
-      day1.icon = resultList[1]['icon'];
-      day1.degree = resultList[1]['degree'];
-
-      day2.day = resultList[2]['day'];
-      day2.icon = resultList[2]['icon'];
-      day2.degree = resultList[2]['degree'];
-
-      day3.day = resultList[3]['day'];
-      day3.icon = resultList[3]['icon'];
-      day3.degree = resultList[3]['degree'];
-
-      day4.day = resultList[4]['day'];
-      day4.icon = resultList[4]['icon'];
-      day4.degree = resultList[4]['degree'];
-
-      day5.day = resultList[5]['day'];
-      day5.icon = resultList[5]['icon'];
-      day5.degree = resultList[5]['degree'];
-
-      // Ensure 'result' key exists and contains at least one element
       if (jsonMap.containsKey('result') && jsonMap['result'].isNotEmpty) {
-        Map<String, dynamic> firstResult = jsonMap['result'][0];
+        List<dynamic> resultList = jsonMap['result'];
+
+        // Populate next days weather
+        day1 = NextDayWeather(
+          day: resultList[1]['day'],
+          icon: resultList[1]['icon'],
+          degree: resultList[1]['degree'],
+        );
+        day2 = NextDayWeather(
+          day: resultList[2]['day'],
+          icon: resultList[2]['icon'],
+          degree: resultList[2]['degree'],
+        );
+        day3 = NextDayWeather(
+          day: resultList[3]['day'],
+          icon: resultList[3]['icon'],
+          degree: resultList[3]['degree'],
+        );
+        day4 = NextDayWeather(
+          day: resultList[4]['day'],
+          icon: resultList[4]['icon'],
+          degree: resultList[4]['degree'],
+        );
+        day5 = NextDayWeather(
+          day: resultList[5]['day'],
+          icon: resultList[5]['icon'],
+          degree: resultList[5]['degree'],
+        );
+
+        Map<String, dynamic> firstResult = resultList[0];
 
         setState(() {
-          currentWeather.date = firstResult['date'] ?? '';
-          currentWeather.day = firstResult['day'] ?? '';
-          currentWeather.icon = firstResult['icon'] ?? '';
-          currentWeather.description = firstResult['description'] ?? '';
-          currentWeather.status = firstResult['status'] ?? '';
-          currentWeather.degree = firstResult['degree'] ?? '0';
-          currentWeather.night = firstResult['night'] ?? '0';
-          currentWeather.humidity = firstResult['humidity'] ?? '';
+          currentWeather = CurrentWeather(
+            date: formatDate(firstResult['date'] ?? ''),
+            day: firstResult['day'] ?? '',
+            icon: firstResult['icon'] ?? '',
+            description: firstResult['description'] ?? '',
+            status: firstResult['status'] ?? '',
+            degree: firstResult['degree'] ?? '0',
+            night: firstResult['night'] ?? '0',
+            humidity: firstResult['humidity'] ?? '',
+          );
 
-          _currentDegree = double.parse(currentWeather.degree).toInt();
-          currentWeather.date = formatDate(currentWeather.date);
+          _currentDegree = int.tryParse(currentWeather.degree) ?? 0;
         });
       } else {
         throw Exception('Invalid response structure');
       }
     } catch (e) {
-      print('Error: $e');
+      print('mesaj: $e');
       setState(() {
         _currentDegree = 0;
       });
     }
   }
+
 
   String formatDate(String dateString) {
     DateTime date = DateFormat('dd.MM.yyyy').parse(dateString);
