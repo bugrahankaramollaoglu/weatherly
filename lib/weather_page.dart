@@ -135,9 +135,7 @@ class _WeatherPageState extends State<WeatherPage> {
   Future<void> fetchWeather() async {
     String locationn = _currentLocation!.toLowerCase();
 
-    locationn = 'samsun';
-
-    print('mesajjjj: $locationn');
+ 
 
     try {
       final response = await http.get(
@@ -227,7 +225,6 @@ class _WeatherPageState extends State<WeatherPage> {
       });
     }
   }
-
 
   String formatDate(String dateString) {
     DateTime date = DateFormat('dd.MM.yyyy').parse(dateString);
@@ -627,3 +624,4 @@ class _WeatherPageState extends State<WeatherPage> {
     );
   }
 }
+
