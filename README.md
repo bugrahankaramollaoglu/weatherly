@@ -2,15 +2,15 @@
 
 A weather app in Flutter.
 
-## Getting Started
+## Description
+<p>"Weatherly" is a simple Flutter app that make use of a public API and fetches up-to-date weather forecast information for all the provinces in Turkey.  </p>
 
-This project is a starting point for a Flutter application.
+## Technologies and Libraries
+- GetX
+- http
 
-A few resources to get you started if this is your first Flutter project:
+## Screenshots
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+| Light Screen | Dark Screen | 
+| ----------- | ----------- |
+| ![Light Screen](https://github.com/bugrahankaramollaoglu/weatherly/main/assets/screenshot_1.png) | ![Dark Screen](https://github.com/bugrahankaramollaoglu/weatherly/blob/main/assets/screenshot_2.png)
