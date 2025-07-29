@@ -13,4 +13,4 @@ A weather app in Flutter.
 
 | Light Screen | Dark Screen | 
 | ----------- | ----------- |
-| ![Light Screen](https://github.com/bugrahankaramollaoglu/weatherly/main/assets/screenshot_1.png) | ![Dark Screen](https://github.com/bugrahankaramollaoglu/weatherly/blob/main/assets/screenshot_2.png)
+| ![Light Screen](https://github.com/bugrahankaramollaoglu/weatherly/blob/main/assets/screenshot_1.png) | ![Dark Screen](https://github.com/bugrahankaramollaoglu/weatherly/blob/main/assets/screenshot_2.png)
